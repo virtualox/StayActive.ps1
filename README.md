@@ -5,11 +5,11 @@ If you are looking to prevent your computer from entering sleep mode or locking 
 However, if you still want a simple PowerShell script to move the mouse cursor periodically, here it is. Please use it responsibly and only for legitimate purposes.
 
 To run the script:
-1. Open a text editor, such as Notepad.
+1. Open a text editor, such as **Notepad**.
 2. Copy and paste the code above into the text editor.
-3. Save the file with the ".ps1" extension, for example, "StayActive.ps1".
-4. Right-click on the saved file and select "Run with PowerShell".
+3. Save the file with the "**.ps1**" extension, for example, "**StayActive.ps1**".
+4. **Right-click** on the saved file and select "**Run with PowerShell**".
 
-This script will move the mouse cursor by 1 pixel every 4 minutes to simulate activity. To stop the script, close the PowerShell window or press `Ctrl+C` in the PowerShell console.
+This script will move the mouse cursor by 1 pixel every 4 minutes to simulate activity. To stop the script, close the PowerShell window or press **`Ctrl+C`** in the PowerShell console.
 
 Remember, use this script responsibly and within the boundaries of the rules set by your organization or the services you are using.
