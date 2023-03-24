@@ -12,7 +12,7 @@ However, if you still want a simple PowerShell script to move the mouse cursor p
 3. Save the file with the "**.ps1**" extension, for example, "**StayActive.ps1**".
 4. **Right-click** on the saved file and select "**Run with PowerShell**".
 
-The script will move the mouse cursor by 1 pixel every 4 minutes to simulate activity. To stop the script, close the PowerShell window or press Ctrl+C in the PowerShell console.
+The script will move the mouse cursor by 1 pixel every 4 minutes to simulate activity. To stop the script, close the PowerShell window or press `Ctrl+C` in the PowerShell console.
 
 ## Reminder
 Use this script responsibly and within the boundaries of the rules set by your organization or the services you are using.
