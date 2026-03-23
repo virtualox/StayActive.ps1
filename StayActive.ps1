@@ -1,3 +1,5 @@
+#Requires -Version 5.1
+
 # StayActive.ps1
 # This script keeps your computer active by minimally moving the mouse cursor
 # Features: Command-line parameters, verbose logging, enhanced progress indicators
@@ -6,14 +8,16 @@
 [CmdletBinding()]
 param(
     [Parameter(HelpMessage="Time between movements in seconds (default: 60)")]
+    [ValidateRange(1, [int]::MaxValue)]
     [int]$MoveInterval = 60,
-    
+
     [Parameter(HelpMessage="Number of pixels to move (default: 1)")]
+    [ValidateRange(1, 10)]
     [int]$SmallMove = 1,
-    
+
     [Parameter(HelpMessage="Show progress indicators in console")]
     [switch]$ShowProgress,
-    
+
     [Parameter(HelpMessage="Show this help message")]
     [switch]$Help
 )
@@ -45,17 +49,6 @@ NOTES:
     - The script moves the mouse minimally and returns it to original position
 "@
     exit 0
-}
-
-# Validate parameters
-if ($MoveInterval -lt 1) {
-    Write-Error "MoveInterval must be at least 1 second"
-    exit 1
-}
-
-if ($SmallMove -lt 1 -or $SmallMove -gt 10) {
-    Write-Error "SmallMove must be between 1 and 10 pixels"
-    exit 1
 }
 
 # Import the required Windows API function
