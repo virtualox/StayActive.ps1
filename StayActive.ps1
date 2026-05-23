@@ -68,7 +68,7 @@
     None. Status output is written to the Information stream.
 
 .NOTES
-    Version : 2.0.0
+    Version : 4.0.0
     License : GPL-3.0
 
     Using a script to simulate user activity or to override power policy may
