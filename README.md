@@ -1,178 +1,174 @@
 # StayActive PowerShell Script
 
-**Disclaimer:** Using a script that simulates activity to avoid being marked as "away" or "AFK" on your computer may be against the policies of your organization or the services you're using. It is important to adhere to the rules and guidelines set by your employer or the platform you're using.
+**Disclaimer:** Using a script that simulates activity or overrides power policy to avoid being marked as "away" or "AFK" on your computer may be against the policies of your organization or the services you're using. Please follow the rules and guidelines set by your employer or the platform you're using.
 
-If you are looking to prevent your computer from entering sleep mode or locking the screen due to inactivity, you can simply adjust the power and sleep settings in Windows.
+If you just want to prevent your computer from entering sleep mode or locking the screen due to inactivity, you can also adjust the power and sleep settings in Windows directly.
 
-However, if you still want a simple PowerShell script to move the mouse cursor periodically, here it is. Please use it responsibly and only for legitimate purposes.
+However, if you still want a small PowerShell script that either keeps Windows awake or periodically nudges the mouse, here it is. Use it responsibly and only for legitimate purposes.
 
-## Features
+## Two Modes
 
-- **Minimal Mouse Movement**: Moves the mouse cursor by a configurable number of pixels (default: 1 pixel) and returns it to the original position
-- **Configurable Timing**: Adjustable interval between movements (default: 60 seconds)
-- **Command-Line Parameters**: Full parameter support for easy customization
-- **Progress Indicators**: Optional visual feedback showing current time, movement count, and runtime
-- **Verbose Logging**: Detailed logging with timestamps for troubleshooting and monitoring
-- **Enhanced Error Handling**: Graceful termination and comprehensive error reporting
-- **Usage Statistics**: Summary of runtime and movement statistics on exit
-- **Built-in Help**: Comprehensive help system with usage examples
+StayActive offers two distinct ways to keep a Windows machine marked active:
+
+- **KeepAwake mode** signals Windows via `SetThreadExecutionState` so the OS will not enter system or display sleep while the script runs. This is the official power-management API and is ideal for presentations, long downloads, file copies, or remote sessions. It does *not* influence applications that track user input (such as Microsoft Teams presence), because it is a power-management hint, not input.
+- **Nudge mode** (the default) periodically moves the mouse cursor by one pixel and moves it back. This is what most "presence" features actually detect. Combine with `-OnlyWhenIdle` to avoid interrupting active work; the script will then only nudge after the system has been idle for a configurable threshold.
+
+Pick KeepAwake when you only care about the machine, and Nudge when you care about how an app perceives you.
 
 ## Quick Start
 
 1. **Download**: Save the script as `StayActive.ps1`
-2. **Run**: Right-click the file and select "Run with PowerShell", or use PowerShell command line
+2. **Run**: Right-click the file and select "Run with PowerShell", or use the PowerShell command line
 3. **Stop**: Press `Ctrl+C` in the PowerShell window
 
 ## Command-Line Usage
 
 ### Basic Syntax
+
 ```powershell
-.\StayActive.ps1 [-MoveInterval <seconds>] [-SmallMove <pixels>] [-ShowProgress] [-Verbose] [-Help]
+.\StayActive.ps1 [-MoveInterval <seconds>] [-SmallMove <pixels>] [-OnlyWhenIdle] [-IdleSeconds <seconds>] [-ShowProgress] [-Verbose]
+.\StayActive.ps1 -KeepAwake [-KeepDisplay] [-ShowProgress] [-Verbose]
+```
+
+Get full help any time with:
+
+```powershell
+Get-Help .\StayActive.ps1 -Full
 ```
 
 ### Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `-MoveInterval` | Integer | 60 | Time between movements in seconds |
-| `-SmallMove` | Integer | 1 | Number of pixels to move (1-10) |
-| `-ShowProgress` | Switch | Off | Show progress indicators in console |
-| `-Verbose` | Switch | Off | Enable detailed logging with timestamps |
-| `-Help` | Switch | Off | Display help information and exit |
+#### Nudge mode (default)
+
+| Parameter        | Type    | Default | Description                                                                 |
+|------------------|---------|---------|-----------------------------------------------------------------------------|
+| `-MoveInterval`  | Integer | 60      | Seconds between mouse nudges                                                |
+| `-SmallMove`     | Integer | 1       | Pixels to move the cursor in each direction (1-10)                          |
+| `-OnlyWhenIdle`  | Switch  | Off     | Only nudge when the user has been idle long enough                          |
+| `-IdleSeconds`   | Integer | 60      | Idle threshold for `-OnlyWhenIdle`                                          |
+| `-ShowProgress`  | Switch  | Off     | Print a one-line status after each cycle                                    |
+
+#### KeepAwake mode
+
+| Parameter        | Type    | Default | Description                                                                 |
+|------------------|---------|---------|-----------------------------------------------------------------------------|
+| `-KeepAwake`     | Switch  | Off     | Use `SetThreadExecutionState` to keep the system awake                      |
+| `-KeepDisplay`   | Switch  | Off     | Also keep the display on (adds `ES_DISPLAY_REQUIRED`)                       |
+| `-ShowProgress`  | Switch  | Off     | Print a one-line status after each heartbeat                                |
+
+`-Verbose` is supported in both modes and prints a per-cycle countdown using `Write-Progress`.
 
 ### Usage Examples
 
 ```powershell
-# Basic usage with default settings (60-second interval)
+# Default Nudge mode: 1 pixel every 60 seconds
 .\StayActive.ps1
 
-# Show progress indicators
-.\StayActive.ps1 -ShowProgress
+# Keep the system awake (presentation, large download)
+.\StayActive.ps1 -KeepAwake
 
-# Custom interval with progress
+# Keep the system AND the display awake
+.\StayActive.ps1 -KeepAwake -KeepDisplay
+
+# Nudge, but only when the user has actually walked away
+.\StayActive.ps1 -OnlyWhenIdle -IdleSeconds 120 -ShowProgress
+
+# Faster cadence with progress indicator
 .\StayActive.ps1 -MoveInterval 30 -ShowProgress
 
-# Verbose logging for detailed monitoring
+# Detailed countdown via Write-Progress
 .\StayActive.ps1 -Verbose
-
-# Custom settings with all features
-.\StayActive.ps1 -MoveInterval 45 -SmallMove 2 -ShowProgress -Verbose
-
-# Quick 30-second intervals for testing
-.\StayActive.ps1 -MoveInterval 30 -ShowProgress -Verbose
-
-# Display help and usage information
-.\StayActive.ps1 -Help
 ```
 
 ## Output Examples
 
 ### Standard Mode
+
 ```
 ============================================================
-StayActive Enhanced Script Started
+StayActive started in Nudge mode
 ============================================================
-Start Time:     2024-12-07 14:30:15
-Move Interval:  60 seconds
-Move Distance:  1 pixel(s)
-Show Progress:  False
-Verbose Mode:   False
+Start time: 2026-05-23 14:30:15
+Move interval: 60 seconds
+Move distance: 1 pixel(s)
 
-Press Ctrl+C to stop the script
+Press Ctrl+C to stop.
 ============================================================
 ```
 
 ### Progress Mode
-```
-[14:31:15] Move #1 | Runtime: 00:01:00 | Next in: 60 sec
-[14:32:15] Move #2 | Runtime: 00:02:00 | Next in: 60 sec
-```
 
-### Verbose Mode
 ```
-[2024-12-07 14:30:16] Script initialization completed
-[2024-12-07 14:30:16] Current mouse position: X=960, Y=540
-[2024-12-07 14:30:16] Moving mouse 1 pixel(s) right/down
-[2024-12-07 14:30:16] Moving mouse back to original position
-[2024-12-07 14:30:16] Movement cycle #1 completed. Total runtime: 00:00:01
+[14:31:15] moved (#1) | runtime 00:01:00 | next in 60 s
+[14:32:15] moved (#2) | runtime 00:02:00 | next in 60 s
 ```
 
-## Advanced Features
+### OnlyWhenIdle Mode
 
-### Parameter Validation
-- Move interval must be at least 1 second
-- Small move distance must be between 1-10 pixels
-- Invalid parameters show helpful error messages
-
-### Error Handling
-- Graceful handling of Ctrl+C interruption
-- Detailed error reporting in verbose mode
-- Clean script termination with summary statistics
-
-### Runtime Statistics
-Upon termination, the script displays:
-- Total runtime
-- Number of movements performed
-- Average interval between movements
-
-## Installation Methods
-
-### Method 1: Direct Download and Run
-1. Save the script content to a file named `StayActive.ps1`
-2. Right-click the file and select "Run with PowerShell"
-
-### Method 2: PowerShell Command Line
-1. Open PowerShell in the script directory
-2. Run: `.\StayActive.ps1` with desired parameters
-
-### Method 3: PowerShell with Execution Policy
-If you encounter execution policy restrictions:
-```powershell
-# Temporarily allow script execution
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
-.\StayActive.ps1
+```
+[14:31:15] skipped (user active) | runtime 00:01:00 | next in 60 s
+[14:32:15] moved (#1) | runtime 00:02:00 | next in 60 s
 ```
 
-## Troubleshooting
+### Termination Summary
 
-### Common Issues
-
-**Script won't run (Execution Policy)**
-```powershell
-# Check current policy
-Get-ExecutionPolicy
-
-# Set policy for current session only
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+============================================================
+StayActive stopped
+============================================================
+End time:      2026-05-23 15:30:15
+Total runtime: 01:00:00
+Mouse nudges:  60
+Average gap:   60 seconds
+============================================================
 ```
 
-**Need more detailed information**
-- Use the `-Verbose` parameter for detailed logging
-- Use the `-Help` parameter for usage information
+## How It Works
 
-**Script running too frequently/infrequently**
-- Adjust the `-MoveInterval` parameter (minimum 1 second)
-- Use `-ShowProgress` to monitor timing
+- **Native API:** Mouse input is synthesized via `SendInput` from `user32.dll`. This is the modern replacement for the older `mouse_event` API. Idle detection uses `GetLastInputInfo`.
+- **Power management:** KeepAwake mode calls `SetThreadExecutionState` with `ES_CONTINUOUS | ES_SYSTEM_REQUIRED`, optionally combined with `ES_DISPLAY_REQUIRED`. The flag is cleared automatically when the script exits.
+- **Idempotent interop:** The C# interop type is defined once per PowerShell session, so re-running the script in the same session works without errors.
+- **Output streams:** Status output uses `Write-Information` (the Information stream) and `Write-Progress`, which means it can be redirected, suppressed, or captured like any other PowerShell stream.
 
 ## System Requirements
 
-- Windows PowerShell 5.1 or PowerShell Core 6.0+
-- Windows operating system with user32.dll (standard on all Windows versions)
-- Appropriate execution policy or administrator privileges to run scripts
+- Windows 10 or 11 (any Windows version with `user32.dll` and `kernel32.dll`)
+- Windows PowerShell 5.1, or PowerShell 7+ on Windows
+- PowerShell running in `FullLanguage` mode. If you are running under AppLocker, WDAC, or another policy that forces Constrained Language Mode, the script will exit early with an explanatory message because `Add-Type` cannot compile C# in that mode.
+- An execution policy that allows local scripts (`RemoteSigned`, `Bypass`, or signed by a trusted publisher)
 
-## Technical Details
+The script explicitly checks `$IsWindows` on PowerShell 7. Running it on macOS or Linux fails fast with a pointer to `caffeinate` or `systemd-inhibit` instead of crashing later.
 
-The script uses Windows API calls to:
-- Move the mouse cursor using `mouse_event` function
-- Track cursor position with `GetCursorPos` function
-- Ensure minimal system impact with precise pixel movements
+## Troubleshooting
+
+### Script will not run (Execution Policy)
+
+```powershell
+# Check the current policy
+Get-ExecutionPolicy
+
+# Allow scripts for the current session only
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+
+### "PowerShell is running in ConstrainedLanguage mode"
+
+Your environment is locked down by AppLocker or WDAC. Ask your administrator for an exemption, or run the script from a host that is not subject to the policy.
+
+### KeepAwake mode does not prevent Teams from marking me away
+
+That is intentional. KeepAwake is a power-management signal to Windows, not a synthetic input event. Use Nudge mode (the default) when an application's "presence" feature is what you care about.
+
+### Nudge mode interrupts my work
+
+Use `-OnlyWhenIdle` together with `-IdleSeconds`. The script will then only move the cursor after you have actually stopped using the mouse and keyboard.
 
 ## Responsible Usage
 
-- **Respect organizational policies** regarding computer activity simulation
-- **Use only for legitimate purposes** such as preventing screen lock during presentations
-- **Be transparent** with your IT department if using in corporate environments
-- **Consider alternatives** like adjusting Windows power settings first
+- **Respect organizational policies** regarding computer activity simulation and power management overrides.
+- **Use only for legitimate purposes** such as preventing screen lock during a presentation or keeping a long-running job alive.
+- **Be transparent** with your IT department if you use this in a corporate environment.
+- **Consider alternatives first**: adjusting Windows power settings, using `presentationsettings.exe`, or using Windows' built-in presentation mode.
 
 ## License
 
@@ -183,7 +179,9 @@ This script is provided as-is for educational and legitimate use purposes. Users
 ## Contributing
 
 Feel free to submit issues and enhancement requests. When contributing:
-1. Ensure backward compatibility
-2. Add appropriate parameter validation
-3. Include help documentation for new features
-4. Test thoroughly on different Windows versions
+
+1. Keep the script working on Windows PowerShell 5.1 as well as PowerShell 7+
+2. Add `ValidateRange` / `ValidateSet` attributes to new parameters
+3. Update the comment-based help block in `StayActive.ps1` for any new parameters
+4. Update this README's parameter tables and examples
+5. Test under both Nudge and KeepAwake modes before submitting
