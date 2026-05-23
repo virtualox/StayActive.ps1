@@ -2,8 +2,7 @@
 
 <#
 .SYNOPSIS
-    Keep a Windows machine marked active by either signalling the power-management
-    subsystem or by simulating a minimal mouse movement.
+    Keeps a Windows machine awake or marked as active.
 
 .DESCRIPTION
     StayActive offers two modes:
@@ -62,12 +61,21 @@
 
     Nudges the mouse, but only when the user has been idle for two minutes.
 
+.INPUTS
+    None. This script does not accept pipeline input.
+
+.OUTPUTS
+    None. Status output is written to the Information stream.
+
 .NOTES
     Version : 2.0.0
     License : GPL-3.0
 
     Using a script to simulate user activity or to override power policy may
     violate your employer's or service provider's policies. Use responsibly.
+
+.LINK
+    https://github.com/virtualox/StayActive.ps1
 #>
 
 [CmdletBinding(DefaultParameterSetName = 'Nudge')]
