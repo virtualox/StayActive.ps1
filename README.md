@@ -17,9 +17,15 @@ Pick KeepAwake when you only care about the machine, and Nudge when you care abo
 
 ## Quick Start
 
-1. **Download**: Save the script as `StayActive.ps1`
+1. **Download** the signed script from the [latest release](https://github.com/virtualox/StayActive.ps1/releases/latest/download/StayActive.ps1) (digitally signed with an EV code signing certificate, Sectigo-timestamped)
 2. **Run**: Right-click the file and select "Run with PowerShell", or use the PowerShell command line
 3. **Stop**: Press `Ctrl+C` in the PowerShell window
+
+Or download from a PowerShell prompt:
+
+```powershell
+Invoke-WebRequest -Uri 'https://github.com/virtualox/StayActive.ps1/releases/latest/download/StayActive.ps1' -OutFile StayActive.ps1
+```
 
 ## Command-Line Usage
 
